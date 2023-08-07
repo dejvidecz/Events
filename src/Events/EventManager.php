@@ -11,7 +11,7 @@
 namespace Kdyby\Events;
 
 use Closure;
-use Doctrine\Common\EventArgs as DoctrineEventArgs;
+use Doctrine\Common\EventArgs;
 use Doctrine\Common\EventSubscriber;
 use Kdyby\Events\Diagnostics\Panel;
 
@@ -75,7 +75,7 @@ class EventManager extends \Doctrine\Common\EventManager
 	 * @param string $eventName The name of the event to dispatch. The name of the event is the name of the method that is invoked on listeners.
 	 * @param \Doctrine\Common\EventArgs $eventArgs The event arguments to pass to the event handlers/listeners. If not supplied, the single empty EventArgs instance is used
 	 */
-	public function dispatchEvent($eventName, DoctrineEventArgs $eventArgs = NULL)
+    public function dispatchEvent(string $eventName, EventArgs|null $eventArgs = null): void
 	{
 		if ($this->panel) {
 			$this->panel->eventDispatch($eventName, $eventArgs);
@@ -118,14 +118,14 @@ class EventManager extends \Doctrine\Common\EventManager
 	 * @param string|null $eventName
 	 * @return \Doctrine\Common\EventSubscriber[]|callable[]|\Doctrine\Common\EventSubscriber[][]|callable[][]
 	 */
-	public function getListeners($eventName = NULL)
+    public function getListeners(string $event): array
 	{
-		if ($eventName !== NULL) {
-			if (!isset($this->sorted[$eventName])) {
-				$this->sortListeners($eventName);
+		if ($event !== NULL) {
+			if (!isset($this->sorted[$event])) {
+				$this->sortListeners($event);
 			}
 
-			return $this->sorted[$eventName];
+			return $this->sorted[$event];
 		}
 
 		foreach (array_keys($this->listeners) as $event) {
@@ -143,9 +143,9 @@ class EventManager extends \Doctrine\Common\EventManager
 	 * @param string|null $eventName
 	 * @return bool TRUE if the specified event has any listeners, FALSE otherwise.
 	 */
-	public function hasListeners($eventName)
+    public function hasListeners(string $event): bool
 	{
-		return (bool) count($this->getListeners($eventName));
+		return (bool) count($this->getListeners($event));
 	}
 
 	/**
@@ -156,7 +156,7 @@ class EventManager extends \Doctrine\Common\EventManager
 	 * @param int $priority
 	 * @throws \Kdyby\Events\InvalidListenerException
 	 */
-	public function addEventListener($events, $subscriber, $priority = 0)
+	public function addEventListener($events, $subscriber, $priority = 0): void
 	{
 		foreach ((array) $events as $eventName) {
 			[, $event] = Event::parseName($eventName);
@@ -184,7 +184,7 @@ class EventManager extends \Doctrine\Common\EventManager
 	 * @param \Doctrine\Common\EventSubscriber|\Closure|array|string $unsubscribe
 	 * @param \Doctrine\Common\EventSubscriber|\Closure|array $subscriber
 	 */
-	public function removeEventListener($unsubscribe, $subscriber = NULL)
+	public function removeEventListener($unsubscribe, $subscriber = NULL): void
 	{
 		if ($unsubscribe instanceof EventSubscriber) {
 			[$unsubscribe, $subscriber] = $this->extractSubscriber($unsubscribe);
@@ -214,10 +214,10 @@ class EventManager extends \Doctrine\Common\EventManager
 				}
 				if (empty($this->listeners[$eventName])) {
 					unset($this->listeners[$eventName]);
-					// there are no listeners for this specific event, so no reason to call sort on next dispatch
+//					 there are no listeners for this specific event, so no reason to call sort on next dispatch
 					$this->sorted[$eventName] = [];
 				} else {
-					// otherwise it needs to be sorted again
+//					 otherwise it needs to be sorted again
 					unset($this->sorted[$eventName]);
 				}
 			}
@@ -272,7 +272,7 @@ class EventManager extends \Doctrine\Common\EventManager
 	/**
 	 * {@inheritdoc}
 	 */
-	public function addEventSubscriber(EventSubscriber $subscriber)
+	public function addEventSubscriber(EventSubscriber $subscriber): void
 	{
 		$hash = spl_object_hash($subscriber);
 		if (isset($this->subscribers[$hash])) {
@@ -303,7 +303,7 @@ class EventManager extends \Doctrine\Common\EventManager
 	/**
 	 * {@inheritdoc}
 	 */
-	public function removeEventSubscriber(EventSubscriber $subscriber)
+	public function removeEventSubscriber(EventSubscriber $subscriber): void
 	{
 		$this->removeEventListener($subscriber);
 	}

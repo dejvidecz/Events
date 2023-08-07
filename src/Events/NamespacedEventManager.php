@@ -10,6 +10,7 @@
 
 namespace Kdyby\Events;
 
+use Doctrine\Common\EventArgs;
 use Doctrine\Common\EventArgs as DoctrineEventArgs;
 use Doctrine\Common\EventSubscriber;
 
@@ -40,7 +41,7 @@ class NamespacedEventManager extends \Kdyby\Events\EventManager
 	/**
 	 * {@inheritDoc}
 	 */
-	public function dispatchEvent($eventName, DoctrineEventArgs $eventArgs = NULL)
+    public function dispatchEvent(string $eventName, EventArgs|null $eventArgs = null): void
 	{
 		[$ns, $event] = Event::parseName($eventName);
 
@@ -54,7 +55,7 @@ class NamespacedEventManager extends \Kdyby\Events\EventManager
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getListeners($eventName = NULL)
+	public function getListeners($eventName = NULL): array
 	{
 		if ($eventName === NULL) {
 			$listeners = [];
@@ -83,7 +84,7 @@ class NamespacedEventManager extends \Kdyby\Events\EventManager
 	/**
 	 * {@inheritDoc}
 	 */
-	public function hasListeners($eventName)
+	public function hasListeners($eventName): bool
 	{
 		[$ns, $event] = Event::parseName($eventName);
 
@@ -97,7 +98,7 @@ class NamespacedEventManager extends \Kdyby\Events\EventManager
 	/**
 	 * {@inheritDoc}
 	 */
-	public function addEventListener($events, $subscriber, $priority = 0)
+	public function addEventListener($events, $subscriber, $priority = 0): void
 	{
 		foreach ((array) $events as $eventName) {
 			[$ns, $event] = Event::parseName($eventName);
@@ -108,7 +109,7 @@ class NamespacedEventManager extends \Kdyby\Events\EventManager
 	/**
 	 * {@inheritDoc}
 	 */
-	public function removeEventListener($unsubscribe, $subscriber = NULL)
+	public function removeEventListener($unsubscribe, $subscriber = NULL): void
 	{
 		if ($unsubscribe instanceof EventSubscriber) {
 			$subscriber = $unsubscribe;
